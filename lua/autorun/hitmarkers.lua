@@ -9,8 +9,12 @@ if SERVER then
 	util.AddNetworkString("DrawHitMarker")
 	util.AddNetworkString("CreateBlood")
 	util.AddNetworkString("OpenMixer")
+	local hm_sv_toggle = CreateConVar("hm_sv_enabled", "1", true, true)
 	
 	hook.Add("EntityTakeDamage", "HitmarkerDetector", function(ent, dmginfo)
+		if not hm_sv_toggle:GetBool() then
+			return
+		end
 		local att = dmginfo:GetAttacker()
 		local dmg = dmginfo:GetDamage()
 		local pos = dmginfo:GetDamagePosition()

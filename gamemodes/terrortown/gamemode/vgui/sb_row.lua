@@ -157,18 +157,26 @@ function GM:TTTScoreboardRowColorForPlayer(ply)
 			return rolecolor.traitor
 		elseif ply:IsHypnotist() then
 			return rolecolor.hypnotist
-		elseif ply:IsJester() or ply:IsSwapper() then
-			return rolecolor.jester
 		elseif ply:IsZombie() then
 			return rolecolor.zombie
 		elseif ply:IsVampire() then
 			return rolecolor.vampire
 		elseif ply:IsAssassin() then
 			return rolecolor.assassin
+		elseif ply:IsJester() or ply:IsSwapper() then
+			return rolecolor.jester
 		end
 	elseif LocalPlayer():IsZombie() then
-		if ply:IsZombie() or ply:IsGlitch() then
+		if ply:IsTraitor() then
+			return rolecolor.traitor
+		elseif ply:IsHypnotist() then
+			return rolecolor.hypnotist
+		elseif ply:IsZombie() or ply:IsGlitch() then
 			return rolecolor.zombie
+		elseif ply:IsVampire() then
+			return rolecolor.vampire
+		elseif ply:IsAssassin() then
+			return rolecolor.assassin
 		elseif ply:IsJester() or ply:IsSwapper() then
 			return rolecolor.jester
 		end
