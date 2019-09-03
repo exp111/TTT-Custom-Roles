@@ -1270,3 +1270,9 @@ L.binoc_zoom_level = "LEVEL"
 L.binoc_body = "BODY DETECTED"
 
 L.idle_popup_title = "Idle"
+
+-- Custom Events
+L.ev_hypno = "{victim} was hypnotised"
+L.ev_defi = "{victim} was defibrillated"
+L.ev_zombi = "{victim} was zombified"
+L.ev_disco = "{victim} disconnected"

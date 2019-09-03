@@ -54,6 +54,12 @@ local revived = {}
 local zombified = {}
 local disconnected = {}
 local spawnedplayers = {}
+local customEvents = {}
+
+function AddEvent(e)
+	e["t"] = math.Round(CurTime(), 2)
+	table.insert(customEvents, e)
+end
 
 net.Receive("TTT_JesterKiller", function(len)
 	jesterkiller = net.ReadString()
@@ -67,23 +73,41 @@ end)
 net.Receive("TTT_Hypnotised", function(len)
 	hypnotised = net.ReadString()
 	table.insert(revived, hypnotised)
+	AddEvent({
+      id = EVENT_HYPNOTISED,
+      vic = hypnotised
+	  })
 end)
 
 net.Receive("TTT_Defibrillated", function(len)
 	defibed = net.ReadString()
 	table.insert(revived, defibed)
+	AddEvent({
+      id = EVENT_DEFIBRILLATED,
+      vic = defibed
+	  })
 end)
 
 net.Receive("TTT_Zombified", function(len)
 	zomed = net.ReadString()
 	table.insert(zombified, zomed)
 	table.insert(revived, zomed)
+	AddEvent({
+      id = EVENT_ZOMBIFIED,
+      vic = zomed
+	  })
 end)
 
 net.Receive("TTT_PlayerDisconnected", function(len)
 	disconned = net.ReadString()
 	table.insert(disconnected, disconned)
+	AddEvent({
+      id = EVENT_DISCONNECTED,
+      vic = disconned
+	  })
 end)
+
+
 
 net.Receive("TTT_ClearRoleSwaps", function(len)
 	hypnotised = ""
@@ -91,6 +115,7 @@ net.Receive("TTT_ClearRoleSwaps", function(len)
 	zombified = {}
 	disconnected = {}
 	spawnedplayers = {}
+	customEvents = {}
 end)
 
 net.Receive("TTT_SpawnedPlayers", function(len)
@@ -146,9 +171,11 @@ function CLSCORE.DeclareEventDisplay(event_id, event_fns)
 end
 
 function CLSCORE:FillDList(dlst)
+	local allEvents = self.Events
+	table.Merge(allEvents, customEvents)
+	table.SortByMember(allEvents, "t", true)
 	
-	for k, e in pairs(self.Events) do
-		
+	for k, e in pairs(allEvents) do
 		local etxt = self:TextForEvent(e)
 		local eicon, ttip = self:IconForEvent(e)
 		local etime = self:TimeForEvent(e)
@@ -235,6 +262,16 @@ function CLSCORE:BuildScorePanel(dpanel)
 			local was_traitor = s.was_traitor
 			local role = was_traitor and T("traitor") or (s.was_detective and T("detective") or (s.was_hypnotist and T("hypnotist") or (s.was_mercenary and T("mercenary") or (s.was_jester and T("jester") or (s.was_phantom and T("phantom") or (s.was_glitch and T("glitch") or (s.was_zombie and T("zombie") or (s.was_vampire and T("vampire") or (s.was_swapper and T("swapper") or (s.was_assassin and T("assassin") or (s.was_killer and T("killer") or T("innocent"))))))))))))
 			
+			if nicks[id] == hypnotised then
+				role = role .. " Hypnotised"
+			end
+				
+			for k, v in pairs(zombified) do
+				if v == nicks[id] then
+					role = role .. " Zombified"
+				end
+			end
+
 			local surv = ""
 			if s.deaths > 0 then
 				surv = vgui.Create("ColoredBox", dlist)
@@ -320,14 +357,113 @@ local wintitle = {
 	[WIN_KILLER] = { txt = "hilite_win_killer", c = Color(50, 0, 70, 255) }
 }
 
+function CLSCORE:BuildHilitePanel(dpanel)
+   local w, h = dpanel:GetSize()
+
+   local title = wintitle[WIN_INNOCENT]
+   local endtime = self.StartTime
+   for i=#self.Events, 1, -1 do
+      local e = self.Events[i]
+      if e.id == EVENT_FINISH then
+         endtime = e.t
+
+         -- when win is due to timeout, innocents win
+         local wintype = e.win
+         if wintype == WIN_TIMELIMIT then wintype = WIN_INNOCENT end
+
+         title = wintitle[wintype]
+         break
+      end
+   end
+
+   local roundtime = endtime - self.StartTime
+
+   local numply = table.Count(self.Players)
+   local numtr = table.Count(self.TraitorIDs)
+
+
+   local bg = vgui.Create("ColoredBox", dpanel)
+   bg:SetColor(Color(50, 50, 50, 255))
+   bg:SetSize(w,h)
+   bg:SetPos(0,0)
+
+   local winlbl = vgui.Create("DLabel", dpanel)
+   winlbl:SetFont("WinHuge")
+   winlbl:SetText( T(title.txt) )
+   winlbl:SetTextColor(COLOR_WHITE)
+   winlbl:SizeToContents()
+   local xwin = (w - winlbl:GetWide())/2
+   local ywin = 30
+   winlbl:SetPos(xwin, ywin)
+
+   bg.PaintOver = function()
+                     draw.RoundedBox(8, xwin - 15, ywin - 5, winlbl:GetWide() + 30, winlbl:GetTall() + 10, title.c)
+                  end
+
+   local ysubwin = ywin + winlbl:GetTall()
+   local partlbl = vgui.Create("DLabel", dpanel)
+
+   local plytxt = PT(numtr == 1 and "hilite_players2" or "hilite_players1",
+                     {numplayers = numply, numtraitors = numtr})
+
+   partlbl:SetText(plytxt)
+   partlbl:SizeToContents()
+   partlbl:SetPos(xwin, ysubwin + 8)
+
+   local timelbl = vgui.Create("DLabel", dpanel)
+   timelbl:SetText(PT("hilite_duration", {time= util.SimpleTime(roundtime, "%02i:%02i")}))
+   timelbl:SizeToContents()
+   timelbl:SetPos(xwin + winlbl:GetWide() - timelbl:GetWide(), ysubwin + 8)
+
+   -- Awards
+   local wa = math.Round(w * 0.9)
+   local ha = h - ysubwin - 40
+   local xa = (w - wa) / 2
+   local ya = h - ha
+
+   local awardp = vgui.Create("DPanel", dpanel)
+   awardp:SetSize(wa, ha)
+   awardp:SetPos(xa, ya)
+   awardp:SetPaintBackground(false)
+
+   -- Before we pick awards, seed the rng in a way that is the same on all
+   -- clients. We can do this using the round start time. To make it a bit more
+   -- random, involve the round's duration too.
+   math.randomseed(self.StartTime + endtime)
+
+   -- Attempt to generate every award, then sort the succeeded ones based on
+   -- priority/interestingness
+   local award_choices = {}
+   for k, afn in pairs(AWARDS) do
+      local a = afn(self.Events, self.Scores, self.Players, self.TraitorIDs, self.DetectiveIDs)
+      if ValidAward(a) then
+         table.insert(award_choices, a)
+      end
+   end
+
+   local num_choices = table.Count(award_choices)
+   local max_awards = 5
+
+   -- sort descending by priority
+   table.SortByMember(award_choices, "priority")
+
+   -- put the N most interesting awards in the menu
+   for i=1,max_awards do
+      local a = award_choices[i]
+      if a then
+         self:AddAward((i - 1) * 42, wa, a, awardp)
+      end
+   end
+end
+
 function CLSCORE:ShowPanel()
 	local margin = 15
 	
 	local dpanel = vgui.Create("DFrame")
-	local w, h = 700, 502
+	local w, h = 700, 500
 	dpanel:SetSize(w, h)
 	dpanel:Center()
-	dpanel:SetTitle("Round Report")
+	dpanel:SetTitle(T("report_title"))
 	dpanel:SetVisible(true)
 	dpanel:ShowCloseButton(true)
 	dpanel:SetMouseInputEnabled(true)
@@ -342,203 +478,54 @@ function CLSCORE:ShowPanel()
 	dpanel:SetDeleteOnClose(false)
 	self.Panel = dpanel
 	
-	local bg = vgui.Create("ColoredBox", dpanel)
-	bg:SetColor(Color(97, 100, 102, 255))
-	bg:SetSize(w - 4, h - 26)
-	bg:SetPos(2, 24)
-	
-	local title = wintitle[WIN_INNOCENT]
-	for i = #self.Events, 1, -1 do
-		local e = self.Events[i]
-		if e.id == EVENT_FINISH then
-			local wintype = e.win
-			if wintype == WIN_TIMELIMIT then wintype = WIN_INNOCENT end
-			title = wintitle[wintype]
-			break
-		end
-	end
-	
-	local winlbl = vgui.Create("DLabel", dpanel)
-	winlbl:SetFont("WinHuge")
-	winlbl:SetText(T(title.txt))
-	winlbl:SetTextColor(COLOR_WHITE)
-	winlbl:SizeToContents()
-	local xwin = (w - winlbl:GetWide()) / 2
-	local ywin = 37
-	winlbl:SetPos(xwin, ywin)
-	
-	bg.PaintOver = function()
-		draw.RoundedBox(8, 8, 8, 680, winlbl:GetTall() + 10, title.c)
-		draw.RoundedBox(0, 8, ywin - 19 + winlbl:GetTall() + 8, 336, 329, Color(164, 164, 164, 255))
-		draw.RoundedBox(0, 352, ywin - 19 + winlbl:GetTall() + 8, 336, 329, Color(164, 164, 164, 255))
-		draw.RoundedBox(0, 8, ywin - 19 + winlbl:GetTall() + 345, 680, 32, Color(164, 164, 164, 255))
-		for i = ywin - 19 + winlbl:GetTall() + 40, ywin - 19 + winlbl:GetTall() + 304, 33 do
-			draw.RoundedBox(0, 8, i, 336, 1, Color(97, 100, 102, 255))
-			draw.RoundedBox(0, 352, i, 336, 1, Color(97, 100, 102, 255))
-		end
-	end
-	
-	local scores = self.Scores
-	local nicks = self.Players
-	local symbols = false
-	local countI = 0
-	local countT = 0
-	
-	for id, s in pairs(scores) do
-		if id ~= -1 then
-			local role = s.was_traitor and "tra" or (s.was_detective and "det" or (s.was_hypnotist and "hyp" or (s.was_jester and "jes" or (s.was_swapper and "swa" or (s.was_mercenary and "mer" or (s.was_glitch and "gli" or (s.was_phantom and "pha" or (s.was_zombie and "zom" or (s.was_assassin and "ass" or (s.was_vampire and "vam" or (s.was_killer and "kil" or "inn")))))))))))
-			
-			if role == "swa" and jesterkillerrole >= 0 then
-				if jesterkillerrole == 0 then
-					role = "inn"
-				elseif jesterkillerrole == 1 then
-					role = "tra"
-				elseif jesterkillerrole == 2 then
-					role = "det"
-				elseif jesterkillerrole == 3 then
-					role = "mer"
-				elseif jesterkillerrole == 4 then
-					role = "jes"
-				elseif jesterkillerrole == 5 then
-					role = "pha"
-				elseif jesterkillerrole == 6 then
-					role = "hyp"
-				elseif jesterkillerrole == 7 then
-					role = "gli"
-				elseif jesterkillerrole == 8 then
-					role = "zom"
-				elseif jesterkillerrole == 9 then
-					role = "vam"
-				elseif jesterkillerrole == 10 then
-					role = "swa"
-				elseif jesterkillerrole == 11 then
-					role = "ass"
-				elseif jesterkillerrole == 12 then
-					role = "kil"
-				end
-			end
-			
-			local foundPlayer = false
-			
-			for k, v in pairs(spawnedplayers) do
-				if v == nicks[id] then
-					foundPlayer = true
-					break
-				end
-			end
-			
-			if foundPlayer then
-				local dead = s.deaths
-				local hasDisconnected = false
-				
-				for k, v in pairs(revived) do
-					if v == nicks[id] then
-						dead = dead - 1
-					end
-				end
-				
-				for k, v in pairs(disconnected) do
-					if v == nicks[id] then
-						hasDisconnected = true
-						break
-					end
-				end
-				
-				if nicks[id] == jesterkiller and jesterkillerrole >= 0 then
-					role = "swa"
-				end
-				
-				if ConVarExists("ttt_role_symbols") then
-					symbols = GetConVar("ttt_role_symbols"):GetBool()
-				end
-				
-				local symorlet = "let"
-				if symbols then
-					symorlet = "sym"
-				end
-				
-				if nicks[id] == hypnotised then
-					role = role .. "_hyped"
-				end
-				
-				for k, v in pairs(zombified) do
-					if v == nicks[id] then
-						role = role .. "_zomed"
-					end
-				end
-				
-				local roleIcon = vgui.Create("DImage", dpanel)
-				roleIcon:SetSize(32, 32)
-				roleIcon:SetImage("vgui/ttt/score_" .. symorlet .. "_" .. role .. ".png")
-				
-				local nicklbl = vgui.Create("DLabel", dpanel)
-				nicklbl:SetFont("ScoreNicks")
-				nicklbl:SetText(nicks[id])
-				nicklbl:SetTextColor(COLOR_WHITE)
-				nicklbl:SizeToContents()
-				
-				if role == "inn" or role == "det" or role == "mer" or role == "pha" or role == "gli" then
-					roleIcon:SetPos(10, 123 + 33 * countI)
-					nicklbl:SetPos(48, 121 + 33 * countI)
-					if hasDisconnected then
-						disconIcon = vgui.Create("DImage", dpanel)
-						disconIcon:SetSize(32, 32)
-						disconIcon:SetPos(314, 123 + 33 * countI)
-						disconIcon:SetImage("vgui/ttt/score_disconicon.png")
-					elseif dead > 0 then
-						skullIcon = vgui.Create("DImage", dpanel)
-						skullIcon:SetSize(32, 32)
-						skullIcon:SetPos(314, 123 + 33 * countI)
-						skullIcon:SetImage("vgui/ttt/score_skullicon.png")
-					end
-					countI = countI + 1
-				elseif role == "tra" or role == "hyp" or role == "zom" or role == "vam" or role == "ass" or string.sub(role, 5) == "hyped" or string.sub(role, 5) == "zomed" then
-					roleIcon:SetPos(354, 123 + 33 * countT)
-					nicklbl:SetPos(392, 121 + 33 * countT)
-					if hasDisconnected then
-						disconIcon = vgui.Create("DImage", dpanel)
-						disconIcon:SetSize(32, 32)
-						disconIcon:SetPos(658, 123 + 33 * countT)
-						disconIcon:SetImage("vgui/ttt/score_disconicon.png")
-					elseif dead > 0 then
-						skullIcon = vgui.Create("DImage", dpanel)
-						skullIcon:SetSize(32, 32)
-						skullIcon:SetPos(658, 123 + 33 * countT)
-						skullIcon:SetImage("vgui/ttt/score_skullicon.png")
-					end
-					countT = countT + 1
-				elseif role == "jes" or role == "swa" or role == "kil" then
-					roleIcon:SetPos(10, 460)
-					nicklbl:SetPos(48, 458)
-					if jesterkiller ~= "" then
-						if role == "jes" then
-							nicklbl:SetText(nicks[id] .. " (Killed by " .. jesterkiller .. ")")
-							nicklbl:SizeToContents()
-						else
-							nicklbl:SetText(nicks[id] .. " (Killed " .. jestervictim .. ")")
-							nicklbl:SizeToContents()
-						end
-					end
-					if hasDisconnected then
-						disconIcon = vgui.Create("DImage", dpanel)
-						disconIcon:SetSize(32, 32)
-						disconIcon:SetPos(658, 460)
-						disconIcon:SetImage("vgui/ttt/score_disconicon.png")
-					elseif dead > 0 then
-						skullIcon = vgui.Create("DImage", dpanel)
-						skullIcon:SetSize(32, 32)
-						skullIcon:SetPos(658, 460)
-						skullIcon:SetImage("vgui/ttt/score_skullicon.png")
-					end
-				end
-			end
-		end
-	end
-	
-	dpanel:MakePopup()
-	
-	-- makepopup grabs keyboard, whereas we only need mouse
-	dpanel:SetKeyboardInputEnabled(false)
+	local dbut = vgui.Create("DButton", dpanel)
+   local bw, bh = 100, 25
+   dbut:SetSize(bw, bh)
+   dbut:SetPos(w - bw - margin, h - bh - margin/2)
+   dbut:SetText(T("close"))
+   dbut.DoClick = function() dpanel:Close() end
+
+   local dsave = vgui.Create("DButton", dpanel)
+   dsave:SetSize(bw,bh)
+   dsave:SetPos(margin, h - bh - margin/2)
+   dsave:SetText(T("report_save"))
+   dsave:SetTooltip(T("report_save_tip"))
+   dsave:SetConsoleCommand("ttt_save_events")
+
+   local dtabsheet = vgui.Create("DPropertySheet", dpanel)
+   dtabsheet:SetPos(margin, margin + 15)
+   dtabsheet:SetSize(w - margin*2, h - margin*3 - bh)
+   local padding = dtabsheet:GetPadding()
+
+
+   -- Highlight tab
+   local dtabhilite = vgui.Create("DPanel", dtabsheet)
+   dtabhilite:SetPaintBackground(false)
+   dtabhilite:StretchToParent(padding,padding,padding,padding)
+   self:BuildHilitePanel(dtabhilite)
+
+   dtabsheet:AddSheet(T("report_tab_hilite"), dtabhilite, "icon16/star.png", false, false, T("report_tab_hilite_tip"))
+
+   -- Event log tab
+   local dtabevents = vgui.Create("DPanel", dtabsheet)
+--   dtab1:SetSize(650, 450)
+   dtabevents:StretchToParent(padding, padding, padding, padding)
+   self:BuildEventLogPanel(dtabevents)
+
+   dtabsheet:AddSheet(T("report_tab_events"), dtabevents, "icon16/application_view_detail.png", false, false, T("report_tab_events_tip"))
+
+   -- Score tab
+   local dtabscores = vgui.Create("DPanel", dtabsheet)
+   dtabscores:SetPaintBackground(false)
+   dtabscores:StretchToParent(padding, padding, padding, padding)
+   self:BuildScorePanel(dtabscores)
+
+   dtabsheet:AddSheet(T("report_tab_scores"), dtabscores, "icon16/user.png", false, false, T("report_tab_scores_tip"))
+
+   dpanel:MakePopup()
+
+   -- makepopup grabs keyboard, whereas we only need mouse
+   dpanel:SetKeyboardInputEnabled(false)
 end
 
 function CLSCORE:ClearPanel()
