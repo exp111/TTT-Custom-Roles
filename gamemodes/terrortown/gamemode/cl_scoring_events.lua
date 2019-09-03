@@ -52,6 +52,10 @@ Event(EVENT_FINISH,
                      return T("ev_win_traitor")
                   elseif e.win == WIN_INNOCENT then
                      return T("ev_win_inno")
+                  elseif e.win == WIN_JESTER then
+                     return T("ev_win_jester")
+                  elseif e.win == WIN_KILLER then
+                     return T("ev_win_killer")
                   elseif e.win == WIN_TIMELIMIT then
                      return T("ev_win_time")
                   end
@@ -61,6 +65,10 @@ Event(EVENT_FINISH,
                      return star_icon, "Traitors won"
                   elseif e.win == WIN_INNOCENT then
                      return star_icon, "Innocents won"
+                  elseif e.win == WIN_JESTER then
+                     return star_icon, "Jester won"
+                  elseif e.win == WIN_KILLER then
+                     return star_icon, "Killer won"
                   else
                      return star_icon, "Timelimit"
                   end
