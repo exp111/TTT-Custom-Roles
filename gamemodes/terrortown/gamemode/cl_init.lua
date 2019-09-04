@@ -50,6 +50,8 @@ include("cl_popups.lua")
 include("cl_equip.lua")
 include("cl_voice.lua")
 
+include("weapons.lua")
+
 CreateClientConVar("ttt_role_symbols", 0, true, false, "Shows symbols instead of letters in role icons.")
 CreateClientConVar("ttt_export_player_data", 0, true, false)
 

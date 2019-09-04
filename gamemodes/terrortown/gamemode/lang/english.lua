@@ -1032,7 +1032,9 @@ L.ev_credit = "{finder} found {num} credit(s) on the corpse of {player}"
 
 L.ev_start = "The round started"
 L.ev_win_traitor = "The dastardly traitors won the round!"
+L.ev_win_jester = "The tricky jester won the round!"
 L.ev_win_inno = "The lovable innocent terrorists won the round!"
+L.ev_win_killer = "The butchering killer won the round!"
 L.ev_win_time = "The traitors ran out of time and lost!"
 
 --- Awards/highlights

@@ -39,6 +39,8 @@ AddCSLuaFile("vgui/sb_row.lua")
 AddCSLuaFile("vgui/sb_team.lua")
 AddCSLuaFile("vgui/sb_info.lua")
 
+AddCSLuaFile("weapons.lua")
+
 include("shared.lua")
 
 include("karma.lua")
@@ -57,6 +59,8 @@ include("corpse.lua")
 include("player_ext_shd.lua")
 include("player_ext.lua")
 include("player.lua")
+
+include("weapons.lua")
 
 -- Round times
 CreateConVar("ttt_roundtime_minutes", "10", FCVAR_NOTIFY)
