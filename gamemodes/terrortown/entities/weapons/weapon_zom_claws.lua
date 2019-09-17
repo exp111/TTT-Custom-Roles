@@ -18,7 +18,7 @@ SWEP.UseHands = true
 SWEP.ViewModel = Model("models/weapons/cstrike/c_knife_t.mdl")
 SWEP.WorldModel = Model("models/weapons/w_knife_t.mdl")
 
-SWEP.Primary.Damage = 50
+SWEP.Primary.Damage = 100
 SWEP.Primary.ClipSize = -1
 SWEP.Primary.DefaultClip = -1
 SWEP.Primary.Automatic = true
@@ -176,9 +176,9 @@ hook.Add("TTTPlayerSpeedModifier", "ClawsSpeed", function(ply, slowed, mv)
 	local wep = ply:GetActiveWeapon()
 	if wep and IsValid(wep) and wep:GetClass() == "weapon_zom_claws" then
 		if ply:HasEquipmentItem(EQUIP_SPEED) then
-			return 1.5
+			return 1.75
 		else
-			return 1.35
+			return 1.5
 		end
 	end
 end)
