@@ -172,14 +172,13 @@ function FindRespawnLocation(pos)
 	return false
 end
 
-hook.Add("TTTPlayerSpeedModifier", "ClawsSpeed", function(ply, slowed, mv)
-	local wep = ply:GetActiveWeapon()
-	if wep and IsValid(wep) and wep:GetClass() == "weapon_zom_claws" then
-		if ply:HasEquipmentItem(EQUIP_SPEED) then
+function SWEP:SprintSpeed()
+	if self and IsValid(self) and self:GetClass() == "weapon_zom_claws" then
+		if self:GetOwner():HasEquipmentItem(EQUIP_SPEED) then
 			return 1.75
 		else
 			return 1.5
 		end
 	end
-end)
+end
 

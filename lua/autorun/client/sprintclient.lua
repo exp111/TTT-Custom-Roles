@@ -174,29 +174,17 @@ end)
 
 -- Set Sprint Speed
 hook.Add("TTTPlayerSpeedModifier", "TTTSprint4TTTPlayerSpeed", function(ply, _, _)
-	if multi then
+	if ply.mult then
 		local wep = ply:GetActiveWeapon()
-		local multi = Multiplier + 1
-		if wep and IsValid(wep) and wep:GetClass() == "genji_melee" then
-			return 1.4 * multi
-		elseif wep and IsValid(wep) and wep:GetClass() == "weapon_ttt_homebat" then
-			return 1.25 * multi
-		elseif wep and IsValid(wep) and wep:GetClass() == "weapon_vam_fangs" and wep:Clip1() < 13 then
-			return 3 * multi
-		elseif wep and IsValid(wep) and wep:GetClass() == "weapon_zom_claws" then
-			if ply:HasEquipmentItem(EQUIP_SPEED) then
-				return 1.5 * multi
-			else
-				return 1.35 * multi
-			end
+		if wep and IsValid(wep) and wep.SprintSpeed then
+			return wep:SprintSpeed() * ply.mult
 		else
-			return multi
+			return ply.mult
 		end
 	else
 		return 1
 	end
 end)
-
 
 hook.Add("TTTSettingsTabs", "TTTSprint4TTTSettingsTabs", function(dtabs)
 	local settings_panel = vgui.Create("DPanelList", dtabs)

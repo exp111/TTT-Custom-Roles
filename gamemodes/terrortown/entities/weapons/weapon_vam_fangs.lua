@@ -222,9 +222,9 @@ if CLIENT then
 	end
 end
 
-hook.Add("TTTPlayerSpeedModifier", "FadeSpeed", function(ply, slowed, mv)
-	local wep = ply:GetActiveWeapon()
-	if wep and IsValid(wep) and wep:GetClass() == "weapon_vam_fangs" and wep:Clip1() < 13 then
+function SWEP:SprintSpeed()
+	if self and IsValid(self) and self:GetClass() == "weapon_vam_fangs" and self:Clip1() < 13 then
 		return 3
 	end
-end)
+	return 1
+end
