@@ -58,6 +58,8 @@ Event(EVENT_FINISH,
                      return T("ev_win_killer")
                   elseif e.win == WIN_TIMELIMIT then
                      return T("ev_win_time")
+                  elseif e.win == WIN_ZOMBIE then
+                     return T("ev_win_zombie")
                   end
                end,
         icon = function(e)
@@ -69,6 +71,8 @@ Event(EVENT_FINISH,
                      return star_icon, "Jester won"
                   elseif e.win == WIN_KILLER then
                      return star_icon, "Killer won"
+                  elseif e.win == WIN_ZOMBIE then
+                     return star_icon, "Zombies, won"
                   else
                      return star_icon, "Timelimit"
                   end

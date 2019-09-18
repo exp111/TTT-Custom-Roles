@@ -882,8 +882,11 @@ function PrintResultMessage(type)
 		LANG.Msg("win_jester")
 		ServerLog("Result: Jester wins.\n")
 	elseif type == WIN_KILLER then
-		LANG.Msg("killer")
+		LANG.Msg("win_killer")
 		ServerLog("Result: Killer wins.\n")
+	elseif type == WIN_ZOMBIE then
+		LANG.Msg("win_zombie")
+		ServerLog("Result: Zombies win.\n")
 	else
 		ServerLog("Result: Unknown victory condition!\n")
 	end
@@ -934,7 +937,7 @@ function LogScore(type)
 	local roleNames = { "Innocent", "Traitor", "Detective", "Mercenary", "Jester", "Phantom", "Hypnotist", "Glitch", "Zombie", "Vampire", "Swapper", "Assassin", "Killer" }
 	
 	for k, v in pairs(player.GetAll()) do
-		local didWin = ((type == WIN_INNOCENT or type == WIN_TIMELIMIT) and (v:GetRole() == ROLE_INNOCENT or v:GetRole() == ROLE_DETECTIVE or v:GetRole() == ROLE_GLITCH or v:GetRole() == ROLE_MERCENARY or v:GetRole() == ROLE_PHANTOM)) or (type == WIN_TRAITOR and (v:GetRole() == ROLE_TRAITOR or v:GetRole() == ROLE_ASSASSIN or v:GetRole() == ROLE_HYPNOTIST or v:GetRole() == ROLE_VAMPIRE or v:GetRole() == ROLE_ZOMBIE)) or (type == WIN_JESTER and (v:GetRole() == ROLE_JESTER or v:GetRole() == ROLE_SWAPPER))
+		local didWin = ((type == WIN_INNOCENT or type == WIN_TIMELIMIT) and (v:GetRole() == ROLE_INNOCENT or v:GetRole() == ROLE_DETECTIVE or v:GetRole() == ROLE_GLITCH or v:GetRole() == ROLE_MERCENARY or v:GetRole() == ROLE_PHANTOM)) or (type == WIN_TRAITOR or type == WIN_ZOMBIE and (v:GetRole() == ROLE_TRAITOR or v:GetRole() == ROLE_ASSASSIN or v:GetRole() == ROLE_HYPNOTIST or v:GetRole() == ROLE_VAMPIRE or v:GetRole() == ROLE_ZOMBIE)) or (type == WIN_JESTER and (v:GetRole() == ROLE_JESTER or v:GetRole() == ROLE_SWAPPER))
 		
 		if not playerStats[v:Nick()] then
 			playerStats[v:Nick()] = { 0, 0 } -- Wins, Rounds
@@ -1065,7 +1068,6 @@ function GM:TTTCheckForWin()
 	elseif not traitor_alive and not innocent_alive and killer_alive then
 		return WIN_KILLER
 	elseif not jester_alive and jesterkilled == 1 then
-		-- ultimately if no one is alive, traitors win
 		return WIN_JESTER
 	end
 	return WIN_NONE

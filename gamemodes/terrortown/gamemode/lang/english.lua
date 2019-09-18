@@ -38,6 +38,7 @@ L.win_traitor = "The Traitors have won!"
 L.win_jester = "The Jester has fooled you all!"
 L.win_innocent = "The Traitors have been defeated!"
 L.win_killer = "The Killer has murdered you all!"
+L.win_zombie = "The Zombies have won!"
 L.win_showreport = "Let's look at the round report for {num} seconds."
 
 L.limit_round = "Round limit reached. {mapname} will load soon."
@@ -961,6 +962,7 @@ L.hilite_win_traitors = "THE TRAITORS WIN"
 L.hilite_win_jester = "THE JESTER WINS"
 L.hilite_win_innocent = "THE INNOCENT WIN"
 L.hilite_win_killer = "THE KILLER WINS"
+L.hilite_win_zombie = "THE ZOMBIES WIN"
 
 L.hilite_players1 = "{numplayers} players took part, {numtraitors} were traitors"
 L.hilite_players2 = "{numplayers} players took part, one of them the traitor"
@@ -1036,6 +1038,7 @@ L.ev_win_jester = "The tricky jester won the round!"
 L.ev_win_inno = "The lovable innocent terrorists won the round!"
 L.ev_win_killer = "The butchering killer won the round!"
 L.ev_win_time = "The traitors ran out of time and lost!"
+L.ev_win_zombie = "The contagious zombies won the round!"
 
 --- Awards/highlights
 

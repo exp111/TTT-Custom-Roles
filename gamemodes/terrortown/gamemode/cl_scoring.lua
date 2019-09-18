@@ -354,7 +354,8 @@ local wintitle = {
 	[WIN_TRAITOR] = { txt = "hilite_win_traitors", c = Color(190, 5, 5, 255) },
 	[WIN_JESTER] = { txt = "hilite_win_jester", c = Color(160, 5, 230, 255) },
 	[WIN_INNOCENT] = { txt = "hilite_win_innocent", c = Color(5, 190, 5, 255) },
-	[WIN_KILLER] = { txt = "hilite_win_killer", c = Color(50, 0, 70, 255) }
+	[WIN_KILLER] = { txt = "hilite_win_killer", c = Color(50, 0, 70, 255) },
+	[WIN_ZOMBIE] = { txt = "hilite_win_zombie", c = Color(69, 97, 0, 255) }
 }
 
 function CLSCORE:BuildHilitePanel(dpanel)
@@ -371,6 +372,14 @@ function CLSCORE:BuildHilitePanel(dpanel)
          local wintype = e.win
          if wintype == WIN_TIMELIMIT then wintype = WIN_INNOCENT end
 
+		 if wintype == WIN_TRAITOR then -- check if zombies exist -> zombie win
+			for k,v in pairs(self.Scores) do
+				if v and v.was_zombie then
+					wintype = WIN_ZOMBIE
+					break
+				end
+			end
+		 end
          title = wintitle[wintype]
          break
       end

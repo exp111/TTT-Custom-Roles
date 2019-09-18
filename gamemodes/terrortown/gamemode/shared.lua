@@ -49,6 +49,7 @@ WIN_INNOCENT = 3
 WIN_TIMELIMIT = 4
 WIN_JESTER = 5
 WIN_KILLER = 6
+WIN_ZOMBIE = 7
 
 -- Weapon categories, you can only carry one of each
 WEAPON_NONE = 0
