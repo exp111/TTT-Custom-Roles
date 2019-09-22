@@ -196,7 +196,7 @@ function GM:PostDrawTranslucentRenderables()
 						render.SetMaterial(indicator_matass_noz)
 						render.DrawQuadEasy(pos, dir, 8, 8, indicator_col, 180)
 					elseif v:GetRole() == ROLE_ZOMBIE then
-						render.SetMaterial(indicator_matzom)
+						render.SetMaterial(indicator_matzom_noz)
 						render.DrawQuadEasy(pos, dir, 8, 8, indicator_col, 180)
 					elseif v:GetRole() == ROLE_JESTER or v:GetRole() == ROLE_SWAPPER then
 						render.SetMaterial(indicator_matjes)
@@ -204,16 +204,16 @@ function GM:PostDrawTranslucentRenderables()
 					end
 				elseif client:GetRole() == ROLE_ZOMBIE then
 					if v:GetRole() == ROLE_TRAITOR then
-						render.SetMaterial(indicator_mattra)
+						render.SetMaterial(indicator_mattra_noz)
 						render.DrawQuadEasy(pos, dir, 8, 8, indicator_col, 180)
 					elseif v:GetRole() == ROLE_HYPNOTIST then
-						render.SetMaterial(indicator_mathyp)
+						render.SetMaterial(indicator_mathyp_noz)
 						render.DrawQuadEasy(pos, dir, 8, 8, indicator_col, 180)
 					elseif v:GetRole() == ROLE_VAMPIRE then
-						render.SetMaterial(indicator_matvam)
+						render.SetMaterial(indicator_matvam_noz)
 						render.DrawQuadEasy(pos, dir, 8, 8, indicator_col, 180)
 					elseif v:GetRole() == ROLE_ASSASSIN then
-						render.SetMaterial(indicator_matass)
+						render.SetMaterial(indicator_matass_noz)
 						render.DrawQuadEasy(pos, dir, 8, 8, indicator_col, 180)
 					elseif v:GetRole() == ROLE_ZOMBIE or v:GetRole() == ROLE_GLITCH then
 						render.SetMaterial(indicator_matzom_noz)
