@@ -13,7 +13,7 @@ RADAR.duration = 30
 RADAR.endtime = 0
 RADAR.bombs = {}
 RADAR.bombs_count = 0
-RADAR.repeating = true
+RADAR.repeating = CreateClientConVar("ttt_radar_scan_repeat", 1, true, false)
 RADAR.samples = {}
 RADAR.samples_count = 0
 
@@ -37,7 +37,7 @@ end
 function RADAR:Timeout()
 	self:EndScan()
 	
-	if self.repeating and LocalPlayer() and LocalPlayer():IsActiveSpecial() and LocalPlayer():HasEquipmentItem(EQUIP_RADAR) then
+	if self.repeating:GetBool() and LocalPlayer() and LocalPlayer():IsActiveSpecial() and LocalPlayer():HasEquipmentItem(EQUIP_RADAR) then
 		RunConsoleCommand("ttt_radar_scan")
 	end
 end
@@ -362,9 +362,9 @@ function RADAR.CreateMenu(parent, frame)
 	local dcheck = vgui.Create("DCheckBoxLabel", dform)
 	dcheck:SetText(GetTranslation("radar_auto"))
 	dcheck:SetIndent(5)
-	dcheck:SetValue(RADAR.repeating)
+	dcheck:SetValue(RADAR.repeating:GetBool())
 	dcheck.OnChange = function(s, val)
-		RADAR.repeating = val
+		RADAR.repeating:SetBool(val)
 	end
 	dform:AddItem(dcheck)
 	
