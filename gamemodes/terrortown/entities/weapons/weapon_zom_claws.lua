@@ -96,7 +96,8 @@ function SWEP:PrimaryAttack()
 						hitEnt:SetEyeAngles(Angle(0, body:GetAngles().y, 0))
 						hitEnt:SetRole(ROLE_ZOMBIE)
 						hitEnt:SetHealth(100)
-						hitEnt:Give("weapon_zom_claws")
+						hitEnt:ForceGive("weapon_zom_claws")
+						
 						hitEnt:SetPData("IsZombifying", 0)
 						body:Remove()
 						for k, v in pairs(player.GetAll()) do

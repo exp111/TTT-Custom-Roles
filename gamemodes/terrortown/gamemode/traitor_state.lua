@@ -210,6 +210,7 @@ local function force_detective(ply)
 	if ply:HasWeapon("weapon_zom_claws") then
 		ply:StripWeapon("weapon_zom_claws")
 	end
+	ply:ForceGive("weapon_ttt_wtester")
 	
 	SendFullStateUpdate()
 end
@@ -248,7 +249,7 @@ local function force_hypnotist(ply)
 	if ply:HasWeapon("weapon_zom_claws") then
 		ply:StripWeapon("weapon_zom_claws")
 	end
-	ply:Give("weapon_hyp_brainwash")
+	ply:ForceGive("weapon_hyp_brainwash")
 	
 	SendFullStateUpdate()
 end
@@ -325,7 +326,7 @@ local function force_zombie(ply)
 	if ply:HasWeapon("weapon_zom_claws") then
 		ply:StripWeapon("weapon_zom_claws")
 	end
-	ply:Give("weapon_zom_claws")
+	ply:ForceGive("weapon_zom_claws")
 	
 	SendFullStateUpdate()
 end
@@ -345,7 +346,7 @@ local function force_vampire(ply)
 	if ply:HasWeapon("weapon_zom_claws") then
 		ply:StripWeapon("weapon_zom_claws")
 	end
-	ply:Give("weapon_vam_fangs")
+	ply:ForceGive("weapon_vam_fangs")
 	
 	SendFullStateUpdate()
 end

@@ -384,3 +384,14 @@ end
 function plymeta:GetAvoidDetective()
 	return self:GetInfoNum("ttt_avoid_detective", 0) > 0
 end
+
+function plymeta:ForceGive(class)
+	local kind = weapons.Get(class).Kind
+	for k,v in pairs(self:GetWeapons()) do
+		cl = v:GetClass()
+		if weapons.Get(cl).Kind == kind then
+			self:StripWeapon(cl)
+		end
+	end
+	self:Give(class)
+end
