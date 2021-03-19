@@ -1,5 +1,5 @@
 {
-  "title": "Custom Roles for TTT",
+  "title": "Custom Roles for TTT (Fixed)",
   "type": "ServerContent",
   "ignore": [
     ".git*",
@@ -8,6 +8,9 @@
     "*.psd",
     "*.vcproj",
     "*.svn*",
-    "LICENSE"
+    "LICENSE",
+    "*.cmd",
+    "icon.jpg",
+    "custom_roles_for_ttt.jpg"
   ]
 }
